@@ -64,118 +64,82 @@ class AccountProvider with ChangeNotifier {
     }
   }
 
-  // Future<void> fetchAndSet() async {
-  //   const url = 'https://banksapp2.firebaseio.com/Accounts.json';
+ 
+  Future<void> addAccount(Account account) async {
+    const url = 'https://banksapp2.firebaseio.com/Accounts.json';
 
-  //   try {
-  //     final response = await http.get(url);
-  //     final extractData = json.decode(response.body) as Map<String, dynamic>;
-  //     if (extractData == null) {
-  //       return;
-  //     }
-  //     final List<Account> loadedAcc = [];
-  //     extractData.forEach(
-  //       (accId, accData) {
-  //         loadedAcc.add(
-  //           Account(
-  //             id: accId,
-  //             firstName: accData['firstName'],
-  //             lastName: accData['lastName'],
-  //             accountNumber: accData['accountNumber'],
-  //             bankName: accData['bankName'],
-  //             atm: accData['atm'],
-  //             upi: accData['upi'],
-  //             ifsc: accData['ifsc'],
-  //             cvc: accData['cvc'],
-  //             cardNum: accData['cardNum'],
-  //             custId: accData['custId'],
-  //             netbnkpswd: accData['netbnkpswd'],
-  //           ),
-  //         );
-  //       },
-  //     );
-  //     _items = loadedAcc;
-  //     notifyListeners();
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // }
+    return http
+        .post(
+      url,
+      body: json.encode({
+        'firstName':account.firstName,
+        'lastName': account.lastName,
+        'accountNumber': account.accountNumber,
+        'bankName': account.bankName,
+        'upi': account.upi,
+        'ifsc': account.ifsc,
+        'cvc': account.cvc,
+        'netbnkpswd': account.netbnkpswd,
+        'atm': account.atm,
+        'cardNum': account.cardNum,
+        'custId': account.custId,
+      }),
+    )
+        .then(
+      (response) {
+        final newAccount = Account(
+          id: json.decode(response.body)['name'],
+          firstName: account.firstName,
+          lastName: account.lastName,
+          accountNumber: account.accountNumber,
+          bankName: account.bankName,
+          upi: account.upi,
+          ifsc: account.ifsc,
+          cvc: account.cvc,
+          netbnkpswd: account.netbnkpswd,
+          atm: account.atm,
+          cardNum: account.cardNum,
+          custId: account.custId,
+        );
+        _items.add(newAccount);
+        notifyListeners();
+      },
+    ).catchError((error) {
+      print(error);
+      throw error;
+    });
+  }
 
   // Future<void> addAccount(Account account) async {
-  //   const url = 'https://banksapp2.firebaseio.com/Accounts.json';
-
-  //   return http
-  //       .post(
-  //     url,
-  //     body: json.encode({
-  //       'firstName':account.firstName,
-  //       'lastName': account.lastName,
-  //       'accountNumber': account.accountNumber,
-  //       'bankName': account.bankName,
-  //       'upi': account.upi,
-  //       'ifsc': account.ifsc,
-  //       'cvc': account.cvc,
-  //       'netbnkpswd': account.netbnkpswd,
-  //       'atm': account.atm,
-  //       'cardNum': account.cardNum,
-  //       'custId': account.custId,
-  //     }),
-  //   )
-  //       .then(
-  //     (response) {
-  //       final newAccount = Account(
-  //         id: json.decode(response.body)['name'],
-  //         firstName: account.firstName,
-  //         lastName: account.lastName,
-  //         accountNumber: account.accountNumber,
-  //         bankName: account.bankName,
-  //         upi: account.upi,
-  //         ifsc: account.ifsc,
-  //         cvc: account.cvc,
-  //         netbnkpswd: account.netbnkpswd,
-  //         atm: account.atm,
-  //         cardNum: account.cardNum,
-  //         custId: account.custId,
-  //       );
-  //       _items.add(newAccount);
-  //       notifyListeners();
-  //     },
-  //   ).catchError((error) {
-  //     print(error);
-  //     throw error;
-  //   });
-  // }
-
-  Future<void> addAccount(Account account) async {
-    const platform = MethodChannel('samples.flutter.dev/encryption');
-    try {
-      final encryptedData = await platform
-          .invokeMethod('encryptData', {'text': account.firstName});
+  //   const platform = MethodChannel('samples.flutter.dev/encryption');
+  //   try {
+  //     final encryptedData = await platform
+  //         .invokeMethod('encryptData', {'text': account.firstName});
 
     
-      _encryptedData = encryptedData;
-    } on PlatformException catch (error) {
-      _encryptedData = "25";
-    }
+  //     _encryptedData = encryptedData;
+  //   } on PlatformException catch (error) {
+  //     _encryptedData = "25";
+  //   }
 
-    _readEncData();
-    final newAccount = Account(
-      id: DateTime.now().toIso8601String(),
-      firstName: _origData,
-      lastName: account.lastName,
-      accountNumber: account.accountNumber,
-      bankName: account.bankName,
-      upi: account.upi,
-      ifsc: account.ifsc,
-      cvc: account.cvc,
-      netbnkpswd: account.netbnkpswd,
-      atm: account.atm,
-      cardNum: account.cardNum,
-      custId: account.custId,
-    );
-    _items.add(newAccount);
-    notifyListeners();
-  }
+  //   _readEncData();
+  //   final newAccount = Account(
+  //     id: DateTime.now().toIso8601String(),
+  //     firstName: _origData,
+  //     lastName: account.lastName,
+  //     accountNumber: account.accountNumber,
+  //     bankName: account.bankName,
+  //     upi: account.upi,
+  //     ifsc: account.ifsc,
+  //     cvc: account.cvc,
+  //     netbnkpswd: account.netbnkpswd,
+  //     atm: account.atm,
+  //     cardNum: account.cardNum,
+  //     custId: account.custId,
+  //   );
+  //   _items.add(newAccount);
+  //   notifyListeners();
+  // }
 
   Future<void> fetchAndSet() async {
     final List<Account> loadedAcc = [];
